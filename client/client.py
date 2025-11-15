@@ -78,7 +78,8 @@ class GameClient:
         buffer = ''
         while self.running:
             try:
-chunk = self.s.recv(4096).decode()
+                # *** ĐÃ SỬA LỖI INDENTATION TẠI ĐÂY ***
+                chunk = self.s.recv(4096).decode()
                 if not chunk:
                     # Server đóng, đưa sự kiện ngắt kết nối vào Queue
                     self.message_queue.put({'type': 'disconnect', 'reason': "Server closed connection."})
@@ -103,8 +104,12 @@ chunk = self.s.recv(4096).decode()
         
         self.gui.display_info(f"Disconnected: {reason}. Closing...", color="red")
         try:
-            if self.s: self.s.close()
-        except: pass
+            if self.s: 
+                # Tối ưu: Đóng kết nối hoàn toàn trước khi giải phóng tài nguyên
+                self.s.shutdown(socket.SHUT_RDWR) 
+                self.s.close()
+        except: 
+            pass
         
         # Dừng hẳn GUI sau 3 giây
         self.gui.after(3000, self.gui.quit) 
@@ -145,7 +150,7 @@ chunk = self.s.recv(4096).decode()
 
                 result_text = f"Round Result: {msg.get('outcome').upper()}!"
                 result_text += f"\nYour move: {msg.get('your_choice')} - Opponent: {msg.get('opponent_choice')}"
-self.gui.display_info(result_text)
+                self.gui.display_info(result_text)
                 self.gui.update_score(score['you'], score['opponent'], opponent)
             
         # Lên lịch gọi lại hàm này sau 100ms
